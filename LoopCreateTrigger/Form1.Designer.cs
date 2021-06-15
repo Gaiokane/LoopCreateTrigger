@@ -30,6 +30,7 @@
         {
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.groupbox_DataBase = new System.Windows.Forms.GroupBox();
+            this.btn_SQLTableStructure = new System.Windows.Forms.Button();
             this.btnShowDatabases = new System.Windows.Forms.Button();
             this.chkboxPort = new System.Windows.Forms.CheckBox();
             this.txtboxPort = new System.Windows.Forms.TextBox();
@@ -46,7 +47,6 @@
             this.labDatabase = new System.Windows.Forms.Label();
             this.labConnectStatus = new System.Windows.Forms.Label();
             this.labHost = new System.Windows.Forms.Label();
-            this.btn_SQLTableStructure = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupbox_DataBase.SuspendLayout();
             this.SuspendLayout();
@@ -85,6 +85,17 @@
             this.groupbox_DataBase.TabIndex = 2;
             this.groupbox_DataBase.TabStop = false;
             this.groupbox_DataBase.Text = "数据库";
+            // 
+            // btn_SQLTableStructure
+            // 
+            this.btn_SQLTableStructure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_SQLTableStructure.Location = new System.Drawing.Point(369, 17);
+            this.btn_SQLTableStructure.Name = "btn_SQLTableStructure";
+            this.btn_SQLTableStructure.Size = new System.Drawing.Size(75, 23);
+            this.btn_SQLTableStructure.TabIndex = 14;
+            this.btn_SQLTableStructure.Text = "查看表结构";
+            this.btn_SQLTableStructure.UseVisualStyleBackColor = true;
+            this.btn_SQLTableStructure.Click += new System.EventHandler(this.btn_SQLTableStructure_Click);
             // 
             // btnShowDatabases
             // 
@@ -229,17 +240,6 @@
             this.labHost.TabIndex = 3;
             this.labHost.Text = "Host：";
             // 
-            // btn_SQLTableStructure
-            // 
-            this.btn_SQLTableStructure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_SQLTableStructure.Location = new System.Drawing.Point(369, 17);
-            this.btn_SQLTableStructure.Name = "btn_SQLTableStructure";
-            this.btn_SQLTableStructure.Size = new System.Drawing.Size(75, 23);
-            this.btn_SQLTableStructure.TabIndex = 14;
-            this.btn_SQLTableStructure.Text = "查看表结构";
-            this.btn_SQLTableStructure.UseVisualStyleBackColor = true;
-            this.btn_SQLTableStructure.Click += new System.EventHandler(this.btn_SQLTableStructure_Click);
-            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(278, 101);
@@ -259,6 +259,7 @@
             this.Controls.Add(this.groupbox_DataBase);
             this.Controls.Add(this.treeView1);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupbox_DataBase.ResumeLayout(false);

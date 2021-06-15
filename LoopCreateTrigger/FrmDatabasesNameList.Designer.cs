@@ -71,6 +71,8 @@
             this.treeView1.Size = new System.Drawing.Size(260, 409);
             this.treeView1.TabIndex = 4;
             this.treeView1.DoubleClick += new System.EventHandler(this.treeView1_DoubleClick);
+            this.treeView1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.treeView1_KeyPress);
+            this.treeView1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView1_MouseDown);
             // 
             // FrmDatabasesNameList
             // 
@@ -82,7 +84,9 @@
             this.Controls.Add(this.labDataBaseName);
             this.Controls.Add(this.treeView1);
             this.Name = "FrmDatabasesNameList";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FrmDatabasesNameList";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmDatabasesNameList_FormClosed);
             this.Load += new System.EventHandler(this.FrmDatabasesNameList_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -802,6 +802,12 @@ namespace LoopCreateTrigger
                             this.mysqlconn = mysqlconn;
                             this.sqltype = "MySQL";
 
+                            treeView1.Nodes.Add(tn);
+
+                            treeView1.ExpandAll();//展开所有树节点
+                                                  //treeView1.CollapseAll();//折叠所有树节点
+                            treeView1.Nodes[0].EnsureVisible();//垂直滚动条在展开所有节点后回到顶端
+
                             //用了FrmSQLTableStructure.GetFrmSQLTableStructure().Activate();，就不能用fsqlts.Show();
                             //fsqlts.Show();
 
@@ -996,74 +1002,152 @@ namespace LoopCreateTrigger
         {
             if (treeView1.Nodes.Count != 0)
             {
-                try
+                #region 使用MSSQL
+                if (radiobtnMSSQL.Checked == true)
                 {
-                    //SqlHelper中把conn.close都去掉了
-                    //处理单击树节点显示表结构后连接被关闭
-                    /*if (mssqlconn.State == ConnectionState.Closed)
+                    try
                     {
-                        mssqlconn.Open();
-                    }*/
-                    if (mssqlconn.State == ConnectionState.Open)
-                    {
-                        //获取当前数据库下的表名
-                        dtDatabaseTablesNameList = SqlHelper.getDataSetMSSQL(sqlGetDatabaseTablesNameListForMSSQL, mssqlconn).Tables[0];
-                        //mssqlconn.Open();
-                        //将表名存到list
-                        listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
-
-                        int result = 0;
-                        foreach (var item in listDatabaseTablesName)
+                        //SqlHelper中把conn.close都去掉了
+                        //处理单击树节点显示表结构后连接被关闭
+                        /*if (mssqlconn.State == ConnectionState.Closed)
                         {
-                            //MessageBox.Show(item.ToString());
-
-                            //MessageBox.Show(getTriggerInsertSQL(item));
-                            //MessageBox.Show(getTriggerUpdateSQL(item));
-                            //MessageBox.Show(getTriggerDeleteSQL(item));
-
-                            try
-                            {
-                                //string reEXISTS = getTriggerInsertSQLEXISTS(item);
-                                //string re = getTriggerInsertSQL(item);
-                                //MessageBox.Show(re);
-                                //Clipboard.SetText(re);
-                                result += getAffectRowsMSSQL(getTriggerInsertSQLEXISTS(item), mssqlconn);
-                                result += getAffectRowsMSSQL(getTriggerInsertSQL(item), mssqlconn);
-                                result += getAffectRowsMSSQL(getTriggerUpdateSQLEXISTS(item), mssqlconn);
-                                result += getAffectRowsMSSQL(getTriggerUpdateSQL(item), mssqlconn);
-                                result += getAffectRowsMSSQL(getTriggerDeleteSQLEXISTS(item), mssqlconn);
-                                result += getAffectRowsMSSQL(getTriggerDeleteSQL(item), mssqlconn);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message);
-                            }
-                        }
-                        if (result <= 0)
+                            mssqlconn.Open();
+                        }*/
+                        if (mssqlconn.State == ConnectionState.Open)
                         {
-                            MessageBox.Show("OK");
+                            //获取当前数据库下的表名
+                            dtDatabaseTablesNameList = SqlHelper.getDataSetMSSQL(sqlGetDatabaseTablesNameListForMSSQL, mssqlconn).Tables[0];
+                            //mssqlconn.Open();
+                            //将表名存到list
+                            listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
+
+                            int result = 0;
+                            foreach (var item in listDatabaseTablesName)
+                            {
+                                //MessageBox.Show(item.ToString());
+
+                                //MessageBox.Show(getTriggerInsertSQL(item));
+                                //MessageBox.Show(getTriggerUpdateSQL(item));
+                                //MessageBox.Show(getTriggerDeleteSQL(item));
+
+                                try
+                                {
+                                    //string reEXISTS = getTriggerInsertSQLEXISTS(item);
+                                    //string re = getTriggerInsertSQL(item);
+                                    //MessageBox.Show(re);
+                                    //Clipboard.SetText(re);
+                                    result += getAffectRowsMSSQL(getTriggerInsertSQLEXISTS(item), mssqlconn);
+                                    result += getAffectRowsMSSQL(getTriggerInsertSQL(item), mssqlconn);
+                                    result += getAffectRowsMSSQL(getTriggerUpdateSQLEXISTS(item), mssqlconn);
+                                    result += getAffectRowsMSSQL(getTriggerUpdateSQL(item), mssqlconn);
+                                    result += getAffectRowsMSSQL(getTriggerDeleteSQLEXISTS(item), mssqlconn);
+                                    result += getAffectRowsMSSQL(getTriggerDeleteSQL(item), mssqlconn);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(ex.Message);
+                                }
+                            }
+                            if (result <= 0)
+                            {
+                                MessageBox.Show("OK");
+
+                            }
+                            else
+                            {
+                                MessageBox.Show("error");
+
+                            }
+
+                            //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
+
+
 
                         }
                         else
                         {
-                            MessageBox.Show("error");
+                            mssqlconn.Open();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+                #endregion
+                #region 使用MYSQL
+                if (radiobtnMYSQL.Checked == true)
+                {
+                    try
+                    {
+                        //SqlHelper中把conn.close都去掉了
+                        //处理单击树节点显示表结构后连接被关闭
+                        /*if (mysqlconn.State == ConnectionState.Closed)
+                        {
+                            mysqlconn.Open();
+                        }*/
+                        if (mysqlconn.State == ConnectionState.Open)
+                        {
+                            //获取当前数据库下的表名
+                            dtDatabaseTablesNameList = SqlHelper.getDataSetMySQL(sqlGetDatabaseTablesNameListForMySQL, mysqlconn).Tables[0];
+                            //mysqlconn.Open();
+                            //将表名存到list
+                            listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
+
+                            int result = 0;
+                            foreach (var item in listDatabaseTablesName)
+                            {
+                                //MessageBox.Show(item.ToString());
+
+                                //MessageBox.Show(getTriggerInsertSQL(item));
+                                //MessageBox.Show(getTriggerUpdateSQL(item));
+                                //MessageBox.Show(getTriggerDeleteSQL(item));
+
+                                try
+                                {
+                                    //string reEXISTS = getTriggerInsertSQLEXISTS(item);
+                                    //string re = getTriggerInsertSQL(item);
+                                    //MessageBox.Show(re);
+                                    //Clipboard.SetText(re);
+                                    result += getAffectRowsMySQL(getTriggerInsertSQLEXISTS(item), mysqlconn);
+                                    result += getAffectRowsMySQL(getTriggerInsertSQL(item), mysqlconn);
+                                    result += getAffectRowsMySQL(getTriggerUpdateSQLEXISTS(item), mysqlconn);
+                                    result += getAffectRowsMySQL(getTriggerUpdateSQL(item), mysqlconn);
+                                    result += getAffectRowsMySQL(getTriggerDeleteSQLEXISTS(item), mysqlconn);
+                                    result += getAffectRowsMySQL(getTriggerDeleteSQL(item), mysqlconn);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(ex.Message);
+                                }
+                            }
+                            if (result <= 0)
+                            {
+                                MessageBox.Show("OK");
+
+                            }
+                            else
+                            {
+                                MessageBox.Show("error");
+
+                            }
+
+                            //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
+
+
 
                         }
-
-                        //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
-
-
-
+                        else
+                        {
+                            mysqlconn.Open();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        mssqlconn.Open();
+                        MessageBox.Show(ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                #endregion
             }
         }
         #endregion
@@ -1095,19 +1179,53 @@ namespace LoopCreateTrigger
             }
         }
 
+        /// <summary>
+        /// 传入SQL，返回该命令所影响行数，其他类型语句（建表）、回滚，返回值为-1
+        /// </summary>
+        /// <param name="Query"></param>
+        /// <param name="MySQLConn">MySqlConnection连接</param>
+        /// <returns></returns>
+        public int getAffectRowsMySQL(string Query, MySqlConnection MySQLConn)
+        {
+            try
+            {
+                MySqlCommand comm = new MySqlCommand(Query, MySQLConn);
+
+                int result = comm.ExecuteNonQuery();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                //MySQLConn.Close();
+            }
+        }
         private string getTriggerInsertSQLEXISTS(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerInsertSQL = "IF \n" +
+            string triggerInsertSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerInsertSQL = "IF \n" +
                 "EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_i]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_i  \n";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerInsertSQL = "DROP TRIGGER IF EXISTS `tr_TB_Users_i`;  \n";
+            }
 
             return triggerInsertSQL.Replace(oldValue, tableName);
         }
-
         private string getTriggerInsertSQL(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerInsertSQL = //"IF \n" +
+            string triggerInsertSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerInsertSQL = //"IF \n" +
                 //"EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_i]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_i  \n" +
                 //"GO \n" +
                 "CREATE TRIGGER tr_TB_Users_i ON [dbo].[TB_Users] AFTER INSERT AS \n" +
@@ -1137,21 +1255,37 @@ namespace LoopCreateTrigger
                 "PROGRAM_NAME ( ), \n" +
                 "SuseR_SNAME( ) \n" +
                 "GO ";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerInsertSQL = "SELECT 1";
+            }
 
             return triggerInsertSQL.Replace(oldValue, tableName);
         }
         private string getTriggerUpdateSQLEXISTS(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerUpdateSQL = "IF \n" +
+            string triggerUpdateSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerUpdateSQL = "IF \n" +
                 "EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_u]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_u  \n";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerUpdateSQL = "DROP TRIGGER IF EXISTS `tr_TB_Users_u`;  \n";
+            }
 
             return triggerUpdateSQL.Replace(oldValue, tableName);
         }
         private string getTriggerUpdateSQL(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerUpdateSQL = //"IF \n" +
+            string triggerUpdateSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerUpdateSQL = //"IF \n" +
                 //"EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_u]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_u  \n" +
                 //"GO \n" +
                 "CREATE TRIGGER tr_TB_Users_u ON [dbo].[TB_Users] AFTER UPDATE AS \n" +
@@ -1183,21 +1317,37 @@ namespace LoopCreateTrigger
                 "PROGRAM_NAME ( ), \n" +
                 "SuseR_SNAME( ) \n" +
                 "GO ";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerUpdateSQL = "SELECT 1";
+            }
 
             return triggerUpdateSQL.Replace(oldValue, tableName);
         }
         private string getTriggerDeleteSQLEXISTS(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerDeleteSQL = "IF \n" +
+            string triggerDeleteSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerDeleteSQL = "IF \n" +
                 "	EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_d]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_d  \n";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerDeleteSQL = "DROP TRIGGER IF EXISTS `tr_TB_Users_d`;  \n";
+            }
 
             return triggerDeleteSQL.Replace(oldValue, tableName);
         }
         private string getTriggerDeleteSQL(string tableName)
         {
             string oldValue = "TB_Users";
-            string triggerDeleteSQL = //"IF \n" +
+            string triggerDeleteSQL = "SELECT 1";
+            if (this.sqltype == "MSSQL")
+            {
+                triggerDeleteSQL = //"IF \n" +
                 //"	EXISTS ( SELECT * FROM dbo.sysobjects WHERE id = object_id( N'[dbo].[tr_TB_Users_d]' ) AND OBJECTPROPERTY( id, N'IsTrigger' ) = 1 ) DROP TRIGGER tr_TB_Users_d  \n" +
                 //"GO \n" +
                 "	CREATE TRIGGER tr_TB_Users_d ON [dbo].[TB_Users] AFTER DELETE AS \n" +
@@ -1227,6 +1377,11 @@ namespace LoopCreateTrigger
                 "PROGRAM_NAME ( ), \n" +
                 "SuseR_SNAME( ) \n" +
                 "GO ";
+            }
+            if (this.sqltype == "MySQL")
+            {
+                triggerDeleteSQL = "SELECT 1";
+            }
 
             return triggerDeleteSQL.Replace(oldValue, tableName);
         }
