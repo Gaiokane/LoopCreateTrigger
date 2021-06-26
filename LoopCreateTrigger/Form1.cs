@@ -1000,154 +1000,315 @@ namespace LoopCreateTrigger
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (treeView1.Nodes.Count != 0)
+            if (labConnectStatus.Text == "状态：已连接")
             {
-                #region 使用MSSQL
-                if (radiobtnMSSQL.Checked == true)
+                if (treeView1.Nodes.Count != 0)
                 {
-                    try
+                    #region 使用MSSQL
+                    if (radiobtnMSSQL.Checked == true)
                     {
-                        //SqlHelper中把conn.close都去掉了
-                        //处理单击树节点显示表结构后连接被关闭
-                        /*if (mssqlconn.State == ConnectionState.Closed)
+                        try
                         {
-                            mssqlconn.Open();
-                        }*/
-                        if (mssqlconn.State == ConnectionState.Open)
-                        {
-                            //获取当前数据库下的表名
-                            dtDatabaseTablesNameList = SqlHelper.getDataSetMSSQL(sqlGetDatabaseTablesNameListForMSSQL, mssqlconn).Tables[0];
-                            //mssqlconn.Open();
-                            //将表名存到list
-                            listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
-
-                            int result = 0;
-                            foreach (var item in listDatabaseTablesName)
+                            if (mssqlconn.State == ConnectionState.Open)
                             {
-                                //MessageBox.Show(item.ToString());
+                                string checkTableExists = "if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'TB_TablesChangeLogs') and xtype='U');";
+                                string dropTableTablesChangeLogs = "DROP TABLE TB_TablesChangeLogs";
+                                string createTableTablesChangeLogs = "CREATE TABLE TB_TablesChangeLogs(" +
+                                                                     "[id] INT IDENTITY NOT NULL," +
+                                                                     "[changeDate] datetime DEFAULT (getdate( ) ) NOT NULL," +
+                                                                     "[changeType] nvarchar(64) NULL," +
+                                                                     "[columnName] nvarchar(64) NULL," +
+                                                                     "[oldValue] nvarchar(MAX) NULL," +
+                                                                     "[newValue] nvarchar(MAX) NULL," +
+                                                                     "[databaseName] nvarchar(255) NULL," +
+                                                                     "[schemaName] nvarchar(255) NULL," +
+                                                                     "[objectName] nvarchar(255) NULL," +
+                                                                     "[hostName] VARCHAR(64) NULL," +
+                                                                     "[iPAddress] VARCHAR(32) NULL," +
+                                                                     "[programName] nvarchar(255) NULL," +
+                                                                     "[loginName] nvarchar(255) NULL," +
+                                                                     "PRIMARY KEY CLUSTERED( [id] ));";
 
-                                //MessageBox.Show(getTriggerInsertSQL(item));
-                                //MessageBox.Show(getTriggerUpdateSQL(item));
-                                //MessageBox.Show(getTriggerDeleteSQL(item));
-
+                                int result = 0;
                                 try
                                 {
-                                    //string reEXISTS = getTriggerInsertSQLEXISTS(item);
-                                    //string re = getTriggerInsertSQL(item);
-                                    //MessageBox.Show(re);
-                                    //Clipboard.SetText(re);
-                                    result += getAffectRowsMSSQL(getTriggerInsertSQLEXISTS(item), mssqlconn);
-                                    result += getAffectRowsMSSQL(getTriggerInsertSQL(item), mssqlconn);
-                                    result += getAffectRowsMSSQL(getTriggerUpdateSQLEXISTS(item), mssqlconn);
-                                    result += getAffectRowsMSSQL(getTriggerUpdateSQL(item), mssqlconn);
-                                    result += getAffectRowsMSSQL(getTriggerDeleteSQLEXISTS(item), mssqlconn);
-                                    result += getAffectRowsMSSQL(getTriggerDeleteSQL(item), mssqlconn);
+                                    result = Convert.ToInt32(SqlHelper.getRowsMSSQL(checkTableExists, mssqlconn));
                                 }
                                 catch (Exception ex)
                                 {
                                     MessageBox.Show(ex.Message);
                                 }
-                            }
-                            if (result <= 0)
-                            {
-                                MessageBox.Show("OK");
-
+                                if (result == 1)
+                                {
+                                    if (DialogResult.OK == MessageBox.Show("变动日志表TB_TablesChangeLogs已存在，是否删除后重新创建？", "提示", MessageBoxButtons.OKCancel))
+                                    {
+                                        result = Convert.ToInt32(SqlHelper.getRowsMSSQL(dropTableTablesChangeLogs, mssqlconn));
+                                        result = Convert.ToInt32(SqlHelper.getRowsMSSQL(createTableTablesChangeLogs, mssqlconn));
+                                        MessageBox.Show("变动日志表TB_TablesChangeLogs创建成功！");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("取消操作");
+                                    }
+                                }
+                                else
+                                {
+                                    result = Convert.ToInt32(SqlHelper.getRowsMSSQL(createTableTablesChangeLogs, mssqlconn));
+                                    MessageBox.Show("变动日志表TB_TablesChangeLogs创建成功！");
+                                }
                             }
                             else
                             {
-                                MessageBox.Show("error");
-
+                                mssqlconn.Open();
                             }
-
-                            //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
-
-
-
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            mssqlconn.Open();
+                            MessageBox.Show(ex.Message);
                         }
                     }
-                    catch (Exception ex)
+                    #endregion
+                    #region 使用MYSQL
+                    if (radiobtnMYSQL.Checked == true)
                     {
-                        MessageBox.Show(ex.Message);
-                    }
-                }
-                #endregion
-                #region 使用MYSQL
-                if (radiobtnMYSQL.Checked == true)
-                {
-                    try
-                    {
-                        //SqlHelper中把conn.close都去掉了
-                        //处理单击树节点显示表结构后连接被关闭
-                        /*if (mysqlconn.State == ConnectionState.Closed)
+                        try
                         {
-                            mysqlconn.Open();
-                        }*/
-                        if (mysqlconn.State == ConnectionState.Open)
-                        {
-                            //获取当前数据库下的表名
-                            dtDatabaseTablesNameList = SqlHelper.getDataSetMySQL(sqlGetDatabaseTablesNameListForMySQL, mysqlconn).Tables[0];
-                            //mysqlconn.Open();
-                            //将表名存到list
-                            listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
-
-                            int result = 0;
-                            foreach (var item in listDatabaseTablesName)
+                            if (mysqlconn.State == ConnectionState.Open)
                             {
-                                //MessageBox.Show(item.ToString());
+                                string checkTableExists = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA='" + txtboxDatabase.Text.Trim() + "' AND table_name='TB_TablesChangeLogs';";
+                                string dropTableTablesChangeLogs = "DROP TABLE `" + txtboxDatabase.Text.Trim() + "`.`TB_TablesChangeLogs`;";
+                                string createTableTablesChangeLogs = "CREATE TABLE `"+ txtboxDatabase.Text.Trim() + "`.`TB_TablesChangeLogs`  (" +
+                                                     "`id` int NOT NULL AUTO_INCREMENT," +
+                                                     "`changeDate` datetime NULL COMMENT '变动时间'," +
+                                                     "`changeType` varchar(255) NULL COMMENT '变动类型'," +
+                                                     "`columnName` varchar(255) NULL COMMENT '变动列名'," +
+                                                     "`oldValue` varchar(255) NULL COMMENT '原始值'," +
+                                                     "`newValue` varchar(255) NULL COMMENT '更新值'," +
+                                                     "`databaseName` varchar(255) NULL COMMENT '数据库名'," +
+                                                     "`schemaName` varchar(255) NULL COMMENT '模式名'," +
+                                                     "`objectName` varchar(255) NULL COMMENT '表名'," +
+                                                     "`hostName` varchar(255) NULL COMMENT '主机名'," +
+                                                     "`iPAddress` varchar(255) NULL COMMENT 'ip'," +
+                                                     "`programName` varchar(255) NULL COMMENT '程序名'," +
+                                                     "`loginName` varchar(255) NULL COMMENT '登录名'," +
+                                                     "PRIMARY KEY(`id`));";
 
-                                //MessageBox.Show(getTriggerInsertSQL(item));
-                                //MessageBox.Show(getTriggerUpdateSQL(item));
-                                //MessageBox.Show(getTriggerDeleteSQL(item));
-
+                                int result = 0;
                                 try
                                 {
-                                    //string reEXISTS = getTriggerInsertSQLEXISTS(item);
-                                    //string re = getTriggerInsertSQL(item);
-                                    //MessageBox.Show(re);
-                                    //Clipboard.SetText(re);
-                                    result += getAffectRowsMySQL(getTriggerInsertSQLEXISTS(item), mysqlconn);
-                                    result += getAffectRowsMySQL(getTriggerInsertSQL(item), mysqlconn);
-                                    result += getAffectRowsMySQL(getTriggerUpdateSQLEXISTS(item), mysqlconn);
-                                    result += getAffectRowsMySQL(getTriggerUpdateSQL(item), mysqlconn);
-                                    result += getAffectRowsMySQL(getTriggerDeleteSQLEXISTS(item), mysqlconn);
-                                    result += getAffectRowsMySQL(getTriggerDeleteSQL(item), mysqlconn);
+                                    result = Convert.ToInt32(SqlHelper.getRowsMySQL(checkTableExists, mysqlconn));
                                 }
                                 catch (Exception ex)
                                 {
                                     MessageBox.Show(ex.Message);
                                 }
+                                if (result == 1)
+                                {
+                                    if (DialogResult.OK == MessageBox.Show("变动日志表TB_TablesChangeLogs已存在，是否删除后重新创建？", "提示", MessageBoxButtons.OKCancel))
+                                    {
+                                        result = Convert.ToInt32(SqlHelper.getRowsMySQL(dropTableTablesChangeLogs, mysqlconn));
+                                        result = Convert.ToInt32(SqlHelper.getRowsMySQL(createTableTablesChangeLogs, mysqlconn));
+                                        MessageBox.Show("变动日志表TB_TablesChangeLogs创建成功！");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("取消操作");
+                                    }
+                                }
+                                else
+                                {
+                                    result = Convert.ToInt32(SqlHelper.getRowsMySQL(createTableTablesChangeLogs, mysqlconn));
+                                    MessageBox.Show("变动日志表TB_TablesChangeLogs创建成功！");
+                                }
                             }
-                            if (result <= 0)
+                            else
                             {
-                                MessageBox.Show("OK");
+                                mysqlconn.Open();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                    }
+                    #endregion
+                }
+                else
+                {
+                    MessageBox.Show("请先查看表结构！");
+                    btn_SQLTableStructure.Focus();
+                }
+            }
+            else
+            {
+                MessageBox.Show("请先连接数据库！");
+                btnConnect.Focus();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (labConnectStatus.Text == "状态：已连接")
+            {
+                if (treeView1.Nodes.Count != 0)
+                {
+                    #region 使用MSSQL
+                    if (radiobtnMSSQL.Checked == true)
+                    {
+                        try
+                        {
+                            //SqlHelper中把conn.close都去掉了
+                            //处理单击树节点显示表结构后连接被关闭
+                            /*if (mssqlconn.State == ConnectionState.Closed)
+                            {
+                                mssqlconn.Open();
+                            }*/
+                            if (mssqlconn.State == ConnectionState.Open)
+                            {
+                                //获取当前数据库下的表名
+                                dtDatabaseTablesNameList = SqlHelper.getDataSetMSSQL(sqlGetDatabaseTablesNameListForMSSQL, mssqlconn).Tables[0];
+                                //mssqlconn.Open();
+                                //将表名存到list
+                                listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
+
+                                int result = 0;
+                                foreach (var item in listDatabaseTablesName)
+                                {
+                                    //MessageBox.Show(item.ToString());
+
+                                    //MessageBox.Show(getTriggerInsertSQL(item));
+                                    //MessageBox.Show(getTriggerUpdateSQL(item));
+                                    //MessageBox.Show(getTriggerDeleteSQL(item));
+
+                                    try
+                                    {
+                                        //string reEXISTS = getTriggerInsertSQLEXISTS(item);
+                                        //string re = getTriggerInsertSQL(item);
+                                        //MessageBox.Show(re);
+                                        //Clipboard.SetText(re);
+                                        result += getAffectRowsMSSQL(getTriggerInsertSQLEXISTS(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerInsertSQL(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerUpdateSQLEXISTS(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerUpdateSQL(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerDeleteSQLEXISTS(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerDeleteSQL(item), mssqlconn);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+                                }
+                                if (result <= 0)
+                                {
+                                    MessageBox.Show("OK");
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("error");
+
+                                }
+
+                                //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
+
+
 
                             }
                             else
                             {
-                                MessageBox.Show("error");
+                                mssqlconn.Open();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                    }
+                    #endregion
+                    #region 使用MYSQL
+                    if (radiobtnMYSQL.Checked == true)
+                    {
+                        try
+                        {
+                            //SqlHelper中把conn.close都去掉了
+                            //处理单击树节点显示表结构后连接被关闭
+                            /*if (mysqlconn.State == ConnectionState.Closed)
+                            {
+                                mysqlconn.Open();
+                            }*/
+                            if (mysqlconn.State == ConnectionState.Open)
+                            {
+                                //获取当前数据库下的表名
+                                dtDatabaseTablesNameList = SqlHelper.getDataSetMySQL(sqlGetDatabaseTablesNameListForMySQL, mysqlconn).Tables[0];
+                                //mysqlconn.Open();
+                                //将表名存到list
+                                listDatabaseTablesName = DataTableToList(dtDatabaseTablesNameList);
+
+                                int result = 0;
+                                foreach (var item in listDatabaseTablesName)
+                                {
+                                    //MessageBox.Show(item.ToString());
+
+                                    //MessageBox.Show(getTriggerInsertSQL(item));
+                                    //MessageBox.Show(getTriggerUpdateSQL(item));
+                                    //MessageBox.Show(getTriggerDeleteSQL(item));
+
+                                    try
+                                    {
+                                        //string reEXISTS = getTriggerInsertSQLEXISTS(item);
+                                        //string re = getTriggerInsertSQL(item);
+                                        //MessageBox.Show(re);
+                                        //Clipboard.SetText(re);
+                                        result += getAffectRowsMySQL(getTriggerInsertSQLEXISTS(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerInsertSQL(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerUpdateSQLEXISTS(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerUpdateSQL(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerDeleteSQLEXISTS(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerDeleteSQL(item), mysqlconn);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+                                }
+                                if (result <= 0)
+                                {
+                                    MessageBox.Show("OK");
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("error");
+
+                                }
+
+                                //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
+
+
 
                             }
-
-                            //Clipboard.SetText(triggerInsertSQL);//复制内容到剪切板
-
-
-
+                            else
+                            {
+                                mysqlconn.Open();
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            mysqlconn.Open();
+                            MessageBox.Show(ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
+                    #endregion
                 }
-                #endregion
+                else
+                {
+                    MessageBox.Show("请先查看表结构！");
+                    btn_SQLTableStructure.Focus();
+                }
+            }
+            else
+            {
+                MessageBox.Show("请先连接数据库！");
+                btnConnect.Focus();
             }
         }
         #endregion

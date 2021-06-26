@@ -18,7 +18,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="SQLConn">SqlConnection连接</param>
         /// <returns></returns>
-        public int getRowsMSSQL(string Query, SqlConnection SQLConn)
+        public static int getRowsMSSQL(string Query, SqlConnection SQLConn)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="SQLConn">SqlConnection连接</param>
         /// <returns></returns>
-        public int getAffectRowsMSSQL(string Query, SqlConnection SQLConn)
+        public static int getAffectRowsMSSQL(string Query, SqlConnection SQLConn)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace LoopCreateTrigger
         /// <param name="Querys">sql数组</param>
         /// <param name="SQLConn">SqlConnection连接</param>
         /// <returns></returns>
-        public int getAffectRowsTransactionMSSQL(string[] Querys, SqlConnection SQLConn)
+        public static int getAffectRowsTransactionMSSQL(string[] Querys, SqlConnection SQLConn)
         {
             int result = 0;
             SqlCommand comm = new SqlCommand();
@@ -104,7 +104,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="SQLConn">SqlConnection连接</param>
         /// <returns></returns>
-        public object getResultMSSQL(string Query, SqlConnection SQLConn)
+        public static object getResultMSSQL(string Query, SqlConnection SQLConn)
         {
             try
             {
@@ -148,6 +148,8 @@ namespace LoopCreateTrigger
         }
         #endregion
 
+        /******************************************************************************************************************************************************************/
+
         #region MySQL
         /// <summary>
         /// 传入SQL，返回查询结果记录条数
@@ -155,7 +157,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="MySQLConn">MySqlConnection连接</param>
         /// <returns></returns>
-        public int getRowsMySQL(string Query, MySqlConnection MySQLConn)
+        public static int getRowsMySQL(string Query, MySqlConnection MySQLConn)
         {
             try
             {
@@ -182,7 +184,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="MySQLConn">MySqlConnection连接</param>
         /// <returns></returns>
-        public int getAffectRowsMySQL(string Query, MySqlConnection MySQLConn)
+        public static int getAffectRowsMySQL(string Query, MySqlConnection MySQLConn)
         {
             try
             {
@@ -207,7 +209,7 @@ namespace LoopCreateTrigger
         /// <param name="Querys">sql数组</param>
         /// <param name="MySQLConn">MySqlConnection连接</param>
         /// <returns></returns>
-        public int getAffectRowsTransactionMySQL(string[] Querys, MySqlConnection MySQLConn)
+        public static int getAffectRowsTransactionMySQL(string[] Querys, MySqlConnection MySQLConn)
         {
             int result = 0;
             MySqlCommand comm = new MySqlCommand();
@@ -241,7 +243,7 @@ namespace LoopCreateTrigger
         /// <param name="Query"></param>
         /// <param name="MySQLConn">MySqlConnection连接</param>
         /// <returns></returns>
-        public object getResultMySQL(string Query, MySqlConnection MySQLConn)
+        public static object getResultMySQL(string Query, MySqlConnection MySQLConn)
         {
             try
             {
