@@ -1011,9 +1011,9 @@ namespace LoopCreateTrigger
                         {
                             if (mssqlconn.State == ConnectionState.Open)
                             {
-                                string checkTableExists = "if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'TB_TablesChangeLogs') and xtype='U');";
-                                string dropTableTablesChangeLogs = "DROP TABLE TB_TablesChangeLogs";
-                                string createTableTablesChangeLogs = "CREATE TABLE TB_TablesChangeLogs(" +
+                                string checkTableExists = "SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[TB_TablesChangeLogs]') AND type IN ('U');";
+                                string dropTableTablesChangeLogs = "DROP TABLE [TB_TablesChangeLogs];";
+                                string createTableTablesChangeLogs = "CREATE TABLE [TB_TablesChangeLogs](" +
                                                                      "[id] INT IDENTITY NOT NULL," +
                                                                      "[changeDate] datetime DEFAULT (getdate( ) ) NOT NULL," +
                                                                      "[changeType] nvarchar(64) NULL," +
