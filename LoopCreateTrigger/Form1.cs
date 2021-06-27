@@ -997,7 +997,9 @@ namespace LoopCreateTrigger
                 this.Close();
             }
         }
+        #endregion
 
+        #region 创建变动日志表
         private void button1_Click(object sender, EventArgs e)
         {
             if (labConnectStatus.Text == "状态：已连接")
@@ -1077,7 +1079,7 @@ namespace LoopCreateTrigger
                             {
                                 string checkTableExists = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA='" + txtboxDatabase.Text.Trim() + "' AND table_name='TB_TablesChangeLogs';";
                                 string dropTableTablesChangeLogs = "DROP TABLE `" + txtboxDatabase.Text.Trim() + "`.`TB_TablesChangeLogs`;";
-                                string createTableTablesChangeLogs = "CREATE TABLE `"+ txtboxDatabase.Text.Trim() + "`.`TB_TablesChangeLogs`  (" +
+                                string createTableTablesChangeLogs = "CREATE TABLE `" + txtboxDatabase.Text.Trim() + "`.`TB_TablesChangeLogs`  (" +
                                                      "`id` int NOT NULL AUTO_INCREMENT," +
                                                      "`changeDate` datetime NULL COMMENT '变动时间'," +
                                                      "`changeType` varchar(255) NULL COMMENT '变动类型'," +
@@ -1145,7 +1147,9 @@ namespace LoopCreateTrigger
                 btnConnect.Focus();
             }
         }
+        #endregion
 
+        #region 对库中所有表批量建触发器
         private void button2_Click(object sender, EventArgs e)
         {
             if (labConnectStatus.Text == "状态：已连接")
@@ -1174,6 +1178,8 @@ namespace LoopCreateTrigger
                                 int result = 0;
                                 foreach (var item in listDatabaseTablesName)
                                 {
+                                    string getTableFirstColumnNameSQL = "SELECT TOP 1 [ColumnName] = [Columns].name FROM sys.tables AS [Tables] INNER JOIN sys.columns AS [Columns] ON [Tables].object_id = [Columns].object_id WHERE [Tables].name = '" + item + "' ORDER BY [Columns].column_id;";
+                                    string tableFirstColumnName = SqlHelper.getResultMSSQL(getTableFirstColumnNameSQL, mssqlconn).ToString();
                                     //MessageBox.Show(item.ToString());
 
                                     //MessageBox.Show(getTriggerInsertSQL(item));
@@ -1187,11 +1193,11 @@ namespace LoopCreateTrigger
                                         //MessageBox.Show(re);
                                         //Clipboard.SetText(re);
                                         result += getAffectRowsMSSQL(getTriggerInsertSQLEXISTS(item), mssqlconn);
-                                        result += getAffectRowsMSSQL(getTriggerInsertSQL(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerInsertSQL(item, tableFirstColumnName), mssqlconn);
                                         result += getAffectRowsMSSQL(getTriggerUpdateSQLEXISTS(item), mssqlconn);
-                                        result += getAffectRowsMSSQL(getTriggerUpdateSQL(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerUpdateSQL(item, tableFirstColumnName), mssqlconn);
                                         result += getAffectRowsMSSQL(getTriggerDeleteSQLEXISTS(item), mssqlconn);
-                                        result += getAffectRowsMSSQL(getTriggerDeleteSQL(item), mssqlconn);
+                                        result += getAffectRowsMSSQL(getTriggerDeleteSQL(item, tableFirstColumnName), mssqlconn);
                                     }
                                     catch (Exception ex)
                                     {
@@ -1225,7 +1231,7 @@ namespace LoopCreateTrigger
                         }
                     }
                     #endregion
-                    #region 使用MYSQL
+                    #region 使用MYSQL（语句未完成，未添加取每个表第一个字段功能）
                     if (radiobtnMYSQL.Checked == true)
                     {
                         try
@@ -1260,11 +1266,11 @@ namespace LoopCreateTrigger
                                         //MessageBox.Show(re);
                                         //Clipboard.SetText(re);
                                         result += getAffectRowsMySQL(getTriggerInsertSQLEXISTS(item), mysqlconn);
-                                        result += getAffectRowsMySQL(getTriggerInsertSQL(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerInsertSQL(item, ""), mysqlconn);
                                         result += getAffectRowsMySQL(getTriggerUpdateSQLEXISTS(item), mysqlconn);
-                                        result += getAffectRowsMySQL(getTriggerUpdateSQL(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerUpdateSQL(item, ""), mysqlconn);
                                         result += getAffectRowsMySQL(getTriggerDeleteSQLEXISTS(item), mysqlconn);
-                                        result += getAffectRowsMySQL(getTriggerDeleteSQL(item), mysqlconn);
+                                        result += getAffectRowsMySQL(getTriggerDeleteSQL(item, ""), mysqlconn);
                                     }
                                     catch (Exception ex)
                                     {
@@ -1312,6 +1318,7 @@ namespace LoopCreateTrigger
             }
         }
         #endregion
+
 
 
 
@@ -1380,7 +1387,7 @@ namespace LoopCreateTrigger
 
             return triggerInsertSQL.Replace(oldValue, tableName);
         }
-        private string getTriggerInsertSQL(string tableName)
+        private string getTriggerInsertSQL(string tableName, string tableFirstColumnName)
         {
             string oldValue = "TB_Users";
             string triggerInsertSQL = "SELECT 1";
@@ -1402,7 +1409,7 @@ namespace LoopCreateTrigger
                 "DECLARE \n" +
                 "@columnName VARCHAR ( 255 ) = ( SELECT column_name FROM information_schema.columns WHERE table_name = 'TB_Users' AND ordinal_position = 1 ); \n" +
                 "DECLARE \n" +
-                "@newValue VARCHAR ( 255 ) = ( SELECT id FROM inserted ); \n" +
+                "@newValue VARCHAR ( 255 ) = ( SELECT " + tableFirstColumnName + " FROM inserted ); \n" +
                 "INSERT INTO [dbo].[TB_TablesChangeLogs] ( changeType, columnName, oldValue, newValue, databaseName, schemaName, objectName, hostName, iPAddress, programName, loginName ) SELECT \n" +
                 "'insert', \n" +
                 "@columnName, \n" +
@@ -1440,7 +1447,7 @@ namespace LoopCreateTrigger
 
             return triggerUpdateSQL.Replace(oldValue, tableName);
         }
-        private string getTriggerUpdateSQL(string tableName)
+        private string getTriggerUpdateSQL(string tableName, string tableFirstColumnName)
         {
             string oldValue = "TB_Users";
             string triggerUpdateSQL = "SELECT 1";
@@ -1462,9 +1469,9 @@ namespace LoopCreateTrigger
                 "DECLARE \n" +
                 "@columnName VARCHAR ( 255 ) = ( SELECT column_name FROM information_schema.columns WHERE table_name = 'TB_Users' AND ordinal_position = 1 ); \n" +
                 "DECLARE \n" +
-                "@oldValue VARCHAR ( 255 ) = ( SELECT id FROM deleted ); \n" +
+                "@oldValue VARCHAR ( 255 ) = ( SELECT " + tableFirstColumnName + " FROM deleted ); \n" +
                 "DECLARE \n" +
-                "@newValue VARCHAR ( 255 ) = ( SELECT id FROM inserted ); \n" +
+                "@newValue VARCHAR ( 255 ) = ( SELECT " + tableFirstColumnName + " FROM inserted ); \n" +
                 "INSERT INTO [dbo].[TB_TablesChangeLogs] ( changeType, columnName, oldValue, newValue, databaseName, schemaName, objectName, hostName, iPAddress, programName, loginName ) SELECT \n" +
                 "'update', \n" +
                 "@columnName, \n" +
@@ -1502,7 +1509,7 @@ namespace LoopCreateTrigger
 
             return triggerDeleteSQL.Replace(oldValue, tableName);
         }
-        private string getTriggerDeleteSQL(string tableName)
+        private string getTriggerDeleteSQL(string tableName, string tableFirstColumnName)
         {
             string oldValue = "TB_Users";
             string triggerDeleteSQL = "SELECT 1";
@@ -1524,7 +1531,7 @@ namespace LoopCreateTrigger
                 "DECLARE \n" +
                 "	@columnName VARCHAR ( 255 ) = ( SELECT column_name FROM information_schema.columns WHERE table_name = 'TB_Users' AND ordinal_position = 1 ); \n" +
                 "DECLARE \n" +
-                "	@oldValue VARCHAR ( 255 ) = ( SELECT id FROM deleted ); \n" +
+                "	@oldValue VARCHAR ( 255 ) = ( SELECT " + tableFirstColumnName + " FROM deleted ); \n" +
                 "INSERT INTO [dbo].[TB_TablesChangeLogs] ( changeType, columnName, oldValue, newValue, databaseName, schemaName, objectName, hostName, iPAddress, programName, loginName ) SELECT \n" +
                 "'delete', \n" +
                 "@columnName, \n" +
